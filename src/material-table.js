@@ -446,116 +446,122 @@ export default class MaterialTable extends React.Component {
 
   onEditingApproved = (mode, newData, oldData) => {
     if (mode === "add" && this.props.editable && this.props.editable.onRowAdd) {
-      this.setState({ isLoading: true }, () => {
-        this.props.editable
-          .onRowAdd(newData)
-          .then((result) => {
-            this.setState({ isLoading: false, showAddRow: false }, () => {
-              if (this.isRemoteData()) {
-                this.onQueryChange(this.state.query);
-              }
-            });
-          })
-          .catch((reason) => {
-            const errorState = {
-              message: reason,
-              errorCause: "add",
-            };
-            this.setState({ isLoading: false, errorState });
+      //      this.setState({ isLoading: true }, () => {
+      return this.props.editable
+        .onRowAdd(newData)
+        .then((keepAddRow) => {
+          return new Promise((resolve) =>
+            keepAddRow
+              ? resolve()
+              : this.setState({ isLoading: false, showAddRow: false }, resolve)
+          ).then(() => {
+            if (this.isRemoteData()) {
+              this.onQueryChange(this.state.query);
+            }
+            return keepAddRow;
           });
-      });
+        })
+        .catch((reason) => {
+          const errorState = {
+            message: reason,
+            errorCause: "add",
+          };
+          this.setState({ isLoading: false, errorState });
+        });
+      //      });
     } else if (
       mode === "update" &&
       this.props.editable &&
       this.props.editable.onRowUpdate
     ) {
-      this.setState({ isLoading: true }, () => {
-        this.props.editable
-          .onRowUpdate(newData, oldData)
-          .then((result) => {
-            this.dataManager.changeRowEditing(oldData);
-            this.setState(
-              {
-                isLoading: false,
-                ...this.dataManager.getRenderState(),
-              },
-              () => {
-                if (this.isRemoteData()) {
-                  this.onQueryChange(this.state.query);
-                }
+      //      this.setState({ isLoading: true }, () => {
+      return this.props.editable
+        .onRowUpdate(newData, oldData)
+        .then((result) => {
+          this.dataManager.changeRowEditing(oldData);
+          this.setState(
+            {
+              isLoading: false,
+              ...this.dataManager.getRenderState(),
+            },
+            () => {
+              if (this.isRemoteData()) {
+                this.onQueryChange(this.state.query);
               }
-            );
-          })
-          .catch((reason) => {
-            const errorState = {
-              message: reason,
-              errorCause: "update",
-            };
-            this.setState({ isLoading: false, errorState });
-          });
-      });
+            }
+          );
+        })
+        .catch((reason) => {
+          const errorState = {
+            message: reason,
+            errorCause: "update",
+          };
+          this.setState({ isLoading: false, errorState });
+        });
+      //      });
     } else if (
       mode === "delete" &&
       this.props.editable &&
       this.props.editable.onRowDelete
     ) {
-      this.setState({ isLoading: true }, () => {
-        this.props.editable
-          .onRowDelete(oldData)
-          .then((result) => {
-            this.dataManager.changeRowEditing(oldData);
-            this.setState(
-              {
-                isLoading: false,
-                ...this.dataManager.getRenderState(),
-              },
-              () => {
-                if (this.isRemoteData()) {
-                  this.onQueryChange(this.state.query);
-                }
+      //      this.setState({ isLoading: true }, () => {
+      return this.props.editable
+        .onRowDelete(oldData)
+        .then((result) => {
+          this.dataManager.changeRowEditing(oldData);
+          this.setState(
+            {
+              isLoading: false,
+              ...this.dataManager.getRenderState(),
+            },
+            () => {
+              if (this.isRemoteData()) {
+                this.onQueryChange(this.state.query);
               }
-            );
-          })
-          .catch((reason) => {
-            const errorState = {
-              message: reason,
-              errorCause: "delete",
-            };
-            this.setState({ isLoading: false, errorState });
-          });
-      });
+            }
+          );
+        })
+        .catch((reason) => {
+          const errorState = {
+            message: reason,
+            errorCause: "delete",
+          };
+          this.setState({ isLoading: false, errorState });
+        });
+      //      });
     } else if (
       mode === "bulk" &&
       this.props.editable &&
       this.props.editable.onBulkUpdate
     ) {
-      this.setState({ isLoading: true }, () => {
-        this.props.editable
-          .onBulkUpdate(this.dataManager.bulkEditChangedRows)
-          .then((result) => {
-            this.dataManager.changeBulkEditOpen(false);
-            this.dataManager.clearBulkEditChangedRows();
-            this.setState(
-              {
-                isLoading: false,
-                ...this.dataManager.getRenderState(),
-              },
-              () => {
-                if (this.isRemoteData()) {
-                  this.onQueryChange(this.state.query);
-                }
+      //      this.setState({ isLoading: true }, () => {
+      return this.props.editable
+        .onBulkUpdate(this.dataManager.bulkEditChangedRows)
+        .then((result) => {
+          this.dataManager.changeBulkEditOpen(false);
+          this.dataManager.clearBulkEditChangedRows();
+          this.setState(
+            {
+              isLoading: false,
+              ...this.dataManager.getRenderState(),
+            },
+            () => {
+              if (this.isRemoteData()) {
+                this.onQueryChange(this.state.query);
               }
-            );
-          })
-          .catch((reason) => {
-            const errorState = {
-              message: reason,
-              errorCause: "bulk edit",
-            };
-            this.setState({ isLoading: false, errorState });
-          });
-      });
+            }
+          );
+        })
+        .catch((reason) => {
+          const errorState = {
+            message: reason,
+            errorCause: "bulk edit",
+          };
+          this.setState({ isLoading: false, errorState });
+        });
+      //      });
     }
+    return Promise.resolve();
   };
 
   onEditingCanceled = (mode, rowData) => {
@@ -814,6 +820,7 @@ export default class MaterialTable extends React.Component {
 
   renderTable = (props) => (
     <Table
+      className={props.className}
       style={{
         tableLayout:
           props.options.fixedColumns &&
@@ -896,6 +903,7 @@ export default class MaterialTable extends React.Component {
         onRowClick={this.props.onRowClick}
         showAddRow={this.state.showAddRow}
         hasAnyEditingRow={
+          !props.options.allRowsEnabledOnEdit &&
           !!(this.state.lastEditingRow || this.state.showAddRow)
         }
         hasDetailPanel={!!props.detailPanel}
@@ -1028,7 +1036,10 @@ export default class MaterialTable extends React.Component {
               onGroupRemoved={this.onGroupRemoved}
             />
           )}
-          <ScrollBar double={props.options.doubleHorizontalScroll}>
+          <ScrollBar
+            double={props.options.doubleHorizontalScroll}
+            noStyles={props.options.noScrollStyles}
+          >
             <Droppable droppableId="headers" direction="horizontal">
               {(provided, snapshot) => {
                 const table = this.renderTable(props);
@@ -1039,6 +1050,8 @@ export default class MaterialTable extends React.Component {
                       style={{
                         maxHeight: props.options.maxBodyHeight,
                         minHeight: props.options.minBodyHeight,
+                        marginBottom: props.options.marginBottom,
+                        minWidth: props.options.minBodyWidth,
                         overflowY: props.options.overflowY,
                       }}
                     >
@@ -1188,17 +1201,19 @@ var style = () => ({
   },
 });
 
-const ScrollBar = withStyles(style)(({ double, children, classes }) => {
-  if (double) {
-    return <DoubleScrollbar>{children}</DoubleScrollbar>;
-  } else {
-    return (
-      <div
-        className={classes.horizontalScrollContainer}
-        style={{ overflowX: "auto", position: "relative" }}
-      >
-        {children}
-      </div>
-    );
+const ScrollBar = withStyles(style)(
+  ({ double, noStyles, children, classes }) => {
+    if (double) {
+      return <DoubleScrollbar>{children}</DoubleScrollbar>;
+    } else {
+      return (
+        <div
+          className={noStyles ? null : classes.horizontalScrollContainer}
+          style={{ overflowX: "auto", position: "relative" }}
+        >
+          {children}
+        </div>
+      );
+    }
   }
-});
+);

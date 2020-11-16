@@ -12,6 +12,8 @@ export default class MTableEditRow extends React.Component {
   constructor(props) {
     super(props);
 
+    if (props.options.useFormValidation) this.ref = React.createRef();
+
     this.state = {
       data: props.data
         ? JSON.parse(JSON.stringify(props.data))
@@ -159,27 +161,36 @@ export default class MTableEditRow extends React.Component {
     return mapArr;
   }
 
-  handleSave = () => {
-    const newData = this.state.data;
-    delete newData.tableData;
-    this.props.onEditingApproved(
+  handleSave = async () => {
+    let empty = true;
+    for (const key in this.state.data) {
+      if (key !== "tableData") {
+        empty = false;
+        break;
+      }
+    }
+    if (!empty) {
+      if (
+        (this.ref && !this.ref.current.closest("form")?.reportValidity()) ||
+        !this.isValid()
+      )
+        return;
+    }
+    const { tableData, ...newData } = this.state.data;
+    const keepAddRow = await this.props.onEditingApproved(
       this.props.mode,
-      this.state.data,
+      newData,
       this.props.data
     );
+    if (keepAddRow) {
+      this.setState({
+        data: this.createRowData(),
+      });
+    }
   };
 
-  renderActions() {
-    if (this.props.mode === "bulk") {
-      return <TableCell padding="none" key="key-actions-column" />;
-    }
-
-    const size = CommonValues.elementSize(this.props);
-    const localization = {
-      ...MTableEditRow.defaultProps.localization,
-      ...this.props.localization,
-    };
-    const isValid = this.props.columns.every((column) => {
+  isValid() {
+    return this.props.columns.every((column) => {
       if (column.validate) {
         const response = column.validate(this.state.data);
         switch (typeof response) {
@@ -194,6 +205,19 @@ export default class MTableEditRow extends React.Component {
         return true;
       }
     });
+  }
+
+  renderActions() {
+    if (this.props.mode === "bulk") {
+      return <TableCell padding="none" key="key-actions-column" />;
+    }
+
+    const size = CommonValues.elementSize(this.props);
+    const localization = {
+      ...MTableEditRow.defaultProps.localization,
+      ...this.props.localization,
+    };
+    const isValid = this.isValid();
     const actions = [
       {
         icon: this.props.icons.Check,
@@ -242,12 +266,12 @@ export default class MTableEditRow extends React.Component {
   }
 
   handleKeyDown = (e) => {
-    if (e.keyCode === 13 && e.target.type !== "textarea") {
+    if (e.keyCode === 13 && (e.target.type !== "textarea" || e.shiftKey)) {
       this.handleSave();
-    } else if (e.keyCode === 13 && e.target.type === "textarea" && e.shiftKey) {
-      this.handleSave();
+      e.preventDefault();
     } else if (e.keyCode === 27) {
       this.props.onEditingCanceled(this.props.mode, this.props.data);
+      e.preventDefault();
     }
   };
 
@@ -367,6 +391,7 @@ export default class MTableEditRow extends React.Component {
     return (
       <>
         <TableRow
+          ref={this.ref}
           onKeyDown={this.handleKeyDown}
           {...rowProps}
           style={this.getStyle()}

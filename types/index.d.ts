@@ -66,6 +66,7 @@ export interface MaterialTableProps<RowData extends object> {
   onTreeExpandChange?: (data: any, isExpanded: boolean) => void;
   onQueryChange?: (query: Query<RowData>) => void;
   style?: React.CSSProperties;
+  className?: string;
   tableRef?: any;
   page?: number;
   totalCount?: number;
@@ -297,12 +298,15 @@ export interface Options<RowData extends object> {
   editCellStyle?: React.CSSProperties;
   actionsColumnIndex?: number;
   addRowPosition?: "first" | "last";
+  allRowsEnabledOnEdit?: boolean;
+  useFormValidation?: boolean;
   columnsButton?: boolean;
   columnResizable?: boolean;
   defaultExpanded?: boolean | ((rowData: any) => boolean);
   debounceInterval?: number;
   detailPanelType?: "single" | "multiple";
   doubleHorizontalScroll?: boolean;
+  noScrollStyles?: boolean;
   draggable?: boolean;
   emptyRowsWhenPaging?: boolean;
   exportAllData?: boolean;
@@ -325,6 +329,8 @@ export interface Options<RowData extends object> {
   loadingType?: "overlay" | "linear";
   maxBodyHeight?: number | string;
   minBodyHeight?: number | string;
+  minBodyWidth?: number | string;
+  marginBottom?: number | string;
   padding?: "default" | "dense";
   paging?: boolean;
   grouping?: boolean;

@@ -177,7 +177,18 @@ export default class MTableEditRow extends React.Component {
         return;
     }
     const { tableData, ...newData } = this.state.data;
-    this.props.onEditingApproved(this.props.mode, newData, this.props.data);
+    this.props.onEditingApproved(
+      this.props.mode,
+      newData,
+      this.props.data,
+      (keepAddRow) => {
+        if (keepAddRow) {
+          this.setState({
+            data: this.createRowData(),
+          });
+        }
+      }
+    );
   };
 
   isValid() {

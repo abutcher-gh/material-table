@@ -161,7 +161,7 @@ export default class MTableEditRow extends React.Component {
     return mapArr;
   }
 
-  handleSave = async () => {
+  handleSave = () => {
     let empty = true;
     for (const key in this.state.data) {
       if (key !== "tableData") {
@@ -177,16 +177,7 @@ export default class MTableEditRow extends React.Component {
         return;
     }
     const { tableData, ...newData } = this.state.data;
-    const keepAddRow = await this.props.onEditingApproved(
-      this.props.mode,
-      newData,
-      this.props.data
-    );
-    if (keepAddRow) {
-      this.setState({
-        data: this.createRowData(),
-      });
-    }
+    this.props.onEditingApproved(this.props.mode, newData, this.props.data);
   };
 
   isValid() {

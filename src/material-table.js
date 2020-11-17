@@ -53,6 +53,8 @@ export default class MaterialTable extends React.Component {
     };
 
     this.tableContainerDiv = React.createRef();
+    this.loadingState =
+      props.options.loadingType === "none" ? null : { isLoading: true };
   }
 
   componentDidMount() {
@@ -446,122 +448,119 @@ export default class MaterialTable extends React.Component {
 
   onEditingApproved = (mode, newData, oldData) => {
     if (mode === "add" && this.props.editable && this.props.editable.onRowAdd) {
-      //      this.setState({ isLoading: true }, () => {
-      return this.props.editable
-        .onRowAdd(newData)
-        .then((keepAddRow) => {
-          return new Promise((resolve) =>
-            keepAddRow
-              ? resolve()
-              : this.setState({ isLoading: false, showAddRow: false }, resolve)
-          ).then(() => {
-            if (this.isRemoteData()) {
-              this.onQueryChange(this.state.query);
-            }
-            return keepAddRow;
+      this.setState(this.loadingState, () => {
+        this.props.editable
+          .onRowAdd(newData)
+          .then((keepAddRow) => {
+            this.setState(
+              keepAddRow ? null : { isLoading: false, showAddRow: false },
+              () => {
+                if (this.isRemoteData()) {
+                  this.onQueryChange(this.state.query);
+                }
+              }
+            );
+          })
+          .catch((reason) => {
+            const errorState = {
+              message: reason,
+              errorCause: "add",
+            };
+            this.setState({ isLoading: false, errorState });
           });
-        })
-        .catch((reason) => {
-          const errorState = {
-            message: reason,
-            errorCause: "add",
-          };
-          this.setState({ isLoading: false, errorState });
-        });
-      //      });
+      });
     } else if (
       mode === "update" &&
       this.props.editable &&
       this.props.editable.onRowUpdate
     ) {
-      //      this.setState({ isLoading: true }, () => {
-      return this.props.editable
-        .onRowUpdate(newData, oldData)
-        .then((result) => {
-          this.dataManager.changeRowEditing(oldData);
-          this.setState(
-            {
-              isLoading: false,
-              ...this.dataManager.getRenderState(),
-            },
-            () => {
-              if (this.isRemoteData()) {
-                this.onQueryChange(this.state.query);
+      this.setState(this.loadingState, () => {
+        this.props.editable
+          .onRowUpdate(newData, oldData)
+          .then((result) => {
+            this.dataManager.changeRowEditing(oldData);
+            this.setState(
+              {
+                isLoading: false,
+                ...this.dataManager.getRenderState(),
+              },
+              () => {
+                if (this.isRemoteData()) {
+                  this.onQueryChange(this.state.query);
+                }
               }
-            }
-          );
-        })
-        .catch((reason) => {
-          const errorState = {
-            message: reason,
-            errorCause: "update",
-          };
-          this.setState({ isLoading: false, errorState });
-        });
-      //      });
+            );
+          })
+          .catch((reason) => {
+            const errorState = {
+              message: reason,
+              errorCause: "update",
+            };
+            this.setState({ isLoading: false, errorState });
+          });
+      });
     } else if (
       mode === "delete" &&
       this.props.editable &&
       this.props.editable.onRowDelete
     ) {
-      //      this.setState({ isLoading: true }, () => {
-      return this.props.editable
-        .onRowDelete(oldData)
-        .then((result) => {
-          this.dataManager.changeRowEditing(oldData);
-          this.setState(
-            {
-              isLoading: false,
-              ...this.dataManager.getRenderState(),
-            },
-            () => {
-              if (this.isRemoteData()) {
-                this.onQueryChange(this.state.query);
+      this.setState(this.loadingState, () => {
+        this.props.editable
+          .onRowDelete(oldData)
+          .then((result) => {
+            this.dataManager.changeRowEditing(oldData);
+            this.setState(
+              {
+                isLoading: false,
+                ...this.dataManager.getRenderState(),
+              },
+              () => {
+                if (this.isRemoteData()) {
+                  this.onQueryChange(this.state.query);
+                }
               }
-            }
-          );
-        })
-        .catch((reason) => {
-          const errorState = {
-            message: reason,
-            errorCause: "delete",
-          };
-          this.setState({ isLoading: false, errorState });
-        });
-      //      });
+            );
+          })
+          .catch((reason) => {
+            const errorState = {
+              message: reason,
+              errorCause: "delete",
+            };
+            this.setState({ isLoading: false, errorState });
+          });
+      });
     } else if (
       mode === "bulk" &&
       this.props.editable &&
       this.props.editable.onBulkUpdate
     ) {
-      //      this.setState({ isLoading: true }, () => {
-      return this.props.editable
-        .onBulkUpdate(this.dataManager.bulkEditChangedRows)
-        .then((result) => {
-          this.dataManager.changeBulkEditOpen(false);
-          this.dataManager.clearBulkEditChangedRows();
-          this.setState(
-            {
-              isLoading: false,
-              ...this.dataManager.getRenderState(),
-            },
-            () => {
-              if (this.isRemoteData()) {
-                this.onQueryChange(this.state.query);
+      this.setState(this.loadingState, () => {
+        this.props.editable
+          .onBulkUpdate(this.dataManager.bulkEditChangedRows)
+          .then((result) => {
+            this.dataManager.changeBulkEditOpen(false);
+            this.dataManager.clearBulkEditChangedRows();
+            this.setState(
+              {
+                isLoading: false,
+                ...this.dataManager.getRenderState(),
+              },
+              () => {
+                if (this.isRemoteData()) {
+                  this.onQueryChange(this.state.query);
+                }
               }
-            }
-          );
-        })
-        .catch((reason) => {
-          const errorState = {
-            message: reason,
-            errorCause: "bulk edit",
-          };
-          this.setState({ isLoading: false, errorState });
-        });
-      //      });
+            );
+          })
+          .catch((reason) => {
+            const errorState = {
+              message: reason,
+              errorCause: "bulk edit",
+            };
+            this.setState({ isLoading: false, errorState });
+          });
+      });
     }
-    return Promise.resolve();
   };
 
   onEditingCanceled = (mode, rowData) => {

@@ -82,7 +82,7 @@ export default class DataManager {
             ? columnDef.width + "px"
             : columnDef.width,
         additionalWidth: 0,
-        ...columnDef.tableData,
+        //...columnDef.tableData,   // FIXME: Workaround https://github.com/mbrn/material-table/issues/2514#issuecomment-704960758
         id: index,
       };
 

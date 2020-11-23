@@ -12,7 +12,7 @@ export default class MTableEditRow extends React.Component {
   constructor(props) {
     super(props);
 
-    if (props.options.useFormValidation) this.ref = React.createRef();
+    this.ref = React.createRef();
 
     this.state = {
       data: props.data
@@ -171,7 +171,8 @@ export default class MTableEditRow extends React.Component {
     }
     if (!empty) {
       if (
-        (this.ref && !this.ref.current.closest("form")?.reportValidity()) ||
+        (this.props.options.useFormValidation &&
+          !this.ref.current.closest("form")?.reportValidity()) ||
         !this.isValid()
       )
         return;
@@ -183,13 +184,22 @@ export default class MTableEditRow extends React.Component {
       this.props.data,
       (keepAddRow) => {
         if (keepAddRow) {
-          this.setState({
-            data: this.createRowData(),
-          });
+          this.setState(
+            {
+              data: this.createRowData(),
+            },
+            () => {
+              this.ref.current.querySelector("input")?.focus();
+            }
+          );
         }
       }
     );
   };
+
+  componentDidMount() {
+    this.ref.current.querySelector("input")?.focus();
+  }
 
   isValid() {
     return this.props.columns.every((column) => {

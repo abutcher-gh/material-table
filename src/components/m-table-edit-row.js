@@ -119,13 +119,17 @@ export default class MTableEditRow extends React.Component {
                 break;
             }
           }
+          const cellAlignment =
+            columnDef.align !== undefined
+              ? columnDef.align
+              : ["numeric", "currency"].indexOf(columnDef.type) !== -1
+              ? "right"
+              : "left";
           return (
             <TableCell
               size={size}
               key={columnDef.tableData.id}
-              align={
-                ["numeric"].indexOf(columnDef.type) !== -1 ? "right" : "left"
-              }
+              align={cellAlignment}
               style={getCellStyle(columnDef, value)}
             >
               <EditComponent

@@ -69,8 +69,12 @@ export default class MTableCell extends React.Component {
     } else if (typeof this.props.value === "boolean") {
       // To avoid forwardref boolean children.
       return this.props.value.toString();
+    } else if (
+      this.props.columnDef.type === "numeric" &&
+      Number.isNaN(this.props.value)
+    ) {
+      return "";
     }
-
     return this.props.value;
   }
 

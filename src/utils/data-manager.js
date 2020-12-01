@@ -747,6 +747,7 @@ export default class DataManager {
     if (this.searchText && this.applySearch) {
       const trimmedSearchText = this.searchText.trim();
       this.searchedData = this.searchedData.filter((row) => {
+        if (row.tableData.editing === "update") return true;
         return this.columns
           .filter((columnDef) => {
             return columnDef.searchable === undefined

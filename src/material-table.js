@@ -447,11 +447,11 @@ export default class MaterialTable extends React.Component {
     });
   };
 
-  onEditingApproved = (mode, newData, oldData, updatedCallback) => {
+  onEditingApproved = (mode, newData, oldData, updatedCallback, event) => {
     if (mode === "add" && this.props.editable && this.props.editable.onRowAdd) {
       this.setState(this.loadingState, () => {
         this.props.editable
-          .onRowAdd(newData)
+          .onRowAdd(newData, event)
           .then((keepAddRow) => {
             if (updatedCallback) updatedCallback(keepAddRow);
             this.setState(

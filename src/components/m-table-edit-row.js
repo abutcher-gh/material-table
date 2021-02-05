@@ -165,7 +165,7 @@ export default class MTableEditRow extends React.Component {
     return mapArr;
   }
 
-  handleSave = () => {
+  handleSave = (e) => {
     let empty = true;
     for (const key in this.state.data) {
       if (key !== "tableData") {
@@ -197,7 +197,8 @@ export default class MTableEditRow extends React.Component {
             }
           );
         }
-      }
+      },
+      e
     );
   };
 
@@ -283,7 +284,7 @@ export default class MTableEditRow extends React.Component {
 
   handleKeyDown = (e) => {
     if (e.keyCode === 13 && (e.target.type !== "textarea" || e.shiftKey)) {
-      this.handleSave();
+      this.handleSave(e);
       e.preventDefault();
     } else if (e.keyCode === 27) {
       this.props.onEditingCanceled(this.props.mode, this.props.data);

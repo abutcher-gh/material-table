@@ -229,7 +229,8 @@ export default class MaterialTable extends React.Component {
           icon: calculatedProps.icons.Add,
           tooltip: localization.addTooltip,
           position: "toolbar",
-          disabled: !!this.dataManager.lastEditingRow,
+          disabled:
+            !!this.dataManager.lastEditingRow || !!this.state?.showAddRow,
           onClick: () => {
             this.dataManager.changeRowEditing();
             this.setState({

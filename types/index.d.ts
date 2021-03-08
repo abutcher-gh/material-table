@@ -28,6 +28,9 @@ export interface MaterialTableProps<RowData extends object> {
     onBulkUpdate?: (
       changes: Record<number, { oldData: RowData; newData: RowData }>
     ) => Promise<any>;
+    onBeginEdit?: (
+      editMode: "bulk" | "row"
+    ) => Promise<boolean | void> | boolean | void;
     onRowAdd?: (newData: RowData, event: Event) => Promise<any>;
     onRowUpdate?: (newData: RowData, oldData?: RowData) => Promise<any>;
     onRowDelete?: (oldData: RowData) => Promise<any>;

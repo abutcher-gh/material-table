@@ -164,6 +164,15 @@ export default class MaterialTable extends React.Component {
     }
   }
 
+  checkAllowEdit(mode, beginEdit) {
+    const allowEditing = this.props.editable?.onBeginEdit?.(mode) ?? true;
+    const verifyAndBegin = (allowed) => {
+      if (allowed ?? true) beginEdit();
+    };
+    if (allowEditing.then) return allowEditing.then(verifyAndBegin);
+    verifyAndBegin(allowEditing);
+  }
+
   getProps(props) {
     const calculatedProps = { ...(props || this.props) };
     calculatedProps.components = {
@@ -232,10 +241,12 @@ export default class MaterialTable extends React.Component {
           disabled:
             !!this.dataManager.lastEditingRow || !!this.state?.showAddRow,
           onClick: () => {
-            this.dataManager.changeRowEditing();
-            this.setState({
-              ...this.dataManager.getRenderState(),
-              showAddRow: !this.state.showAddRow,
+            this.checkAllowEdit("row", () => {
+              this.dataManager.changeRowEditing();
+              this.setState({
+                ...this.dataManager.getRenderState(),
+                showAddRow: !this.state.showAddRow,
+              });
             });
           },
         });
@@ -253,10 +264,12 @@ export default class MaterialTable extends React.Component {
             calculatedProps.editable.isEditHidden &&
             calculatedProps.editable.isEditHidden(rowData),
           onClick: (e, rowData) => {
-            this.dataManager.changeRowEditing(rowData, "update");
-            this.setState({
-              ...this.dataManager.getRenderState(),
-              showAddRow: false,
+            this.checkAllowEdit("row", () => {
+              this.dataManager.changeRowEditing(rowData, "update");
+              this.setState({
+                ...this.dataManager.getRenderState(),
+                showAddRow: false,
+              });
             });
           },
         }));
@@ -274,10 +287,12 @@ export default class MaterialTable extends React.Component {
             calculatedProps.editable.isDeleteHidden &&
             calculatedProps.editable.isDeleteHidden(rowData),
           onClick: (e, rowData) => {
-            this.dataManager.changeRowEditing(rowData, "delete");
-            this.setState({
-              ...this.dataManager.getRenderState(),
-              showAddRow: false,
+            this.checkAllowEdit("row", () => {
+              this.dataManager.changeRowEditing(rowData, "delete");
+              this.setState({
+                ...this.dataManager.getRenderState(),
+                showAddRow: false,
+              });
             });
           },
         }));
@@ -289,8 +304,10 @@ export default class MaterialTable extends React.Component {
           position: "toolbar",
           hidden: this.dataManager.bulkEditOpen,
           onClick: () => {
-            this.dataManager.changeBulkEditOpen(true);
-            this.setState(this.dataManager.getRenderState());
+            this.checkAllowEdit("bulk", () => {
+              this.dataManager.changeBulkEditOpen(true);
+              this.setState(this.dataManager.getRenderState());
+            });
           },
         });
         calculatedProps.actions.push({

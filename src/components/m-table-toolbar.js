@@ -132,6 +132,9 @@ export class MTableToolbar extends React.Component {
               : this.props.classes.searchField
           }
           value={this.state.searchText}
+          onKeyDown={(event) => {
+            if (event.keyCode === 13) event.preventDefault();
+          }}
           onChange={(event) => this.onSearchChange(event.target.value)}
           placeholder={localization.searchPlaceholder}
           variant={this.props.searchFieldVariant}
